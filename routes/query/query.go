@@ -105,5 +105,14 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 		return data, nil
 			},
 		},
+
+		"historys": &graphql.Field{
+			Type: graphql.NewList(types.HistoryType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			var data []models.History
+			err := db.DB.Preload("Product").Preload("User").Find(&data).Error
+			return data, err
+			},
+		},
 	},
 })
