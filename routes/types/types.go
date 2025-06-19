@@ -132,3 +132,11 @@ var FavoriteType = graphql.NewObject(graphql.ObjectConfig{
 		"product": &graphql.Field{Type: ProductType},
 	},
 })
+
+var ForgetPasswordResponseType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ForgetPasswordResponse",
+	Fields: graphql.Fields{
+		"message": &graphql.Field{Type: graphql.String},
+		"role":    &graphql.Field{Type: graphql.String},
+	},
+})
