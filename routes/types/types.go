@@ -100,3 +100,23 @@ var HistoryType = graphql.NewObject(graphql.ObjectConfig{
 		"user":    &graphql.Field{Type: UserType},
 	},
 })
+
+var CheckoutType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Checkout",
+	Fields: graphql.Fields{
+		"id_checkout":       &graphql.Field{Type: graphql.Int},
+		"id_user":           &graphql.Field{Type: graphql.Int},
+		"id_product":        &graphql.Field{Type: graphql.Int},
+		"id_keranjang":      &graphql.Field{Type: graphql.Int},
+		"id_alamat":         &graphql.Field{Type: graphql.Int},
+		"jumlah":            &graphql.Field{Type: graphql.Int},
+		"metode_pengiriman": &graphql.Field{Type: graphql.String},
+		"pembayaran":        &graphql.Field{Type: graphql.String},
+		"sizeP":             &graphql.Field{Type: graphql.String},
+
+		"user":      &graphql.Field{Type: UserType},
+		"product":   &graphql.Field{Type: ProductType},
+		"keranjang": &graphql.Field{Type: KeranjangType},
+		"alamat":    &graphql.Field{Type: AlamatType},
+	},
+})
