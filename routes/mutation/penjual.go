@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var CreateUser = &graphql.Field{
-	Type: types.UserType,
+var CreatePenjual = &graphql.Field{
+	Type: types.PenjualType,
 	Args: graphql.FieldConfigArgument{
 		"nama":     &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 		"email":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
@@ -21,14 +21,14 @@ var CreateUser = &graphql.Field{
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		email := p.Args["email"].(string)
 
-		var existingUser models.User
-		if err := db.DB.Where("email = ?", email).First(&existingUser).Error; err == nil {
+		var existingPenjual models.Penjual
+		if err := db.DB.Where("email = ?", email).First(&existingPenjual).Error; err == nil {
 			return nil, fmt.Errorf("email sudah terdaftar")
 		}
 
-		var existingPenjual models.Penjual
-		if err := db.DB.Where("email = ?", email).First(&existingPenjual).Error; err == nil {
-			return nil, fmt.Errorf("email sudah terdaftar di penjual")
+		var existingUser models.User
+		if err := db.DB.Where("email = ?", email).First(&existingUser).Error; err == nil {
+			return nil, fmt.Errorf("email sudah terdaftar di user")
 		}
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(p.Args["password"].(string)), bcrypt.DefaultCost)
@@ -36,36 +36,36 @@ var CreateUser = &graphql.Field{
 			return nil, err
 		}
 
-		user := models.User{
+		penjual := models.Penjual{
 			Nama:     p.Args["nama"].(string),
 			Email:    email,
 			Telepon:  getString(p, "telepon"),
 			Password: string(hashedPassword),
 		}
 
-		if err := db.DB.Create(&user).Error; err != nil {
+		if err := db.DB.Create(&penjual).Error; err != nil {
 			return nil, err
 		}
 
-		return user, nil
+		return penjual, nil
 	},
 }
 
-var UpdateUser = &graphql.Field{
-	Type: types.UserType,
+var UpdatePenjual = &graphql.Field{
+	Type: types.PenjualType,
 	Args: graphql.FieldConfigArgument{
-		"id_user":      &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		"id_penjual":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
 		"nama":         &graphql.ArgumentConfig{Type: graphql.String},
 		"telepon":      &graphql.ArgumentConfig{Type: graphql.String},
-		"old_password": &graphql.ArgumentConfig{Type: graphql.String},
 		"password":     &graphql.ArgumentConfig{Type: graphql.String},
+		"old_password": &graphql.ArgumentConfig{Type: graphql.String},
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		id := getInt(p, "id_user")
-		var user models.User
+		id := getInt(p, "id_penjual")
+		var penjual models.Penjual
 
-		if err := db.DB.First(&user, id).Error; err != nil {
-			return nil, fmt.Errorf("user tidak ditemukan")
+		if err := db.DB.First(&penjual, id).Error; err != nil {
+			return nil, fmt.Errorf("penjual tidak ditemukan")
 		}
 
 		updates := map[string]interface{}{}
@@ -82,7 +82,7 @@ var UpdateUser = &graphql.Field{
 			if oldPassword == "" {
 				return nil, fmt.Errorf("password lama wajib diisi")
 			}
-			err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
+			err := bcrypt.CompareHashAndPassword([]byte(penjual.Password), []byte(oldPassword))
 			if err != nil {
 				return nil, fmt.Errorf("password lama salah")
 			}
@@ -94,32 +94,32 @@ var UpdateUser = &graphql.Field{
 			updates["password"] = string(hashedPassword)
 		}
 
-		if err := db.DB.Model(&user).Updates(updates).Error; err != nil {
+		if err := db.DB.Model(&penjual).Updates(updates).Error; err != nil {
 			return nil, err
 		}
 
-		db.DB.First(&user, id)
-		return user, nil
+		db.DB.First(&penjual, id)
+		return penjual, nil
 	},
 }
 
-var UpdateUserProfil = &graphql.Field{
-	Type: types.UserType,
+var UpdatePenjualProfil = &graphql.Field{
+	Type: types.PenjualType,
 	Args: graphql.FieldConfigArgument{
-		"id_user": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
-		"profil":  &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
+		"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		"profil":     &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		IDUser := p.Args["id_user"].(int)
+		IDPenjual := p.Args["id_penjual"].(int)
 		profil := p.Args["profil"].(string)
-		var user models.User
-		if err := db.DB.First(&user, IDUser).Error; err != nil {
-			return nil, fmt.Errorf("user tidak ditemukan")
+		var penjual models.Penjual
+		if err := db.DB.First(&penjual, IDPenjual).Error; err != nil {
+			return nil, fmt.Errorf("penjual tidak ditemukan")
 		}
-		user.Profil = profil
-		if err := db.DB.Save(&user).Error; err != nil {
+		penjual.Profil = profil
+		if err := db.DB.Save(&penjual).Error; err != nil {
 			return nil, err
 		}
-		return user, nil
+		return penjual, nil
 	},
 }

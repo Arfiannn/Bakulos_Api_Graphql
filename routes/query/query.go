@@ -30,5 +30,25 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return data, nil
 			},
 		},
+
+		"penjuals": &graphql.Field{
+			Type: graphql.NewList(types.PenjualType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var data []models.Penjual
+				return data, db.DB.Find(&data).Error
+			},
+		},
+		"penjualsbyid": &graphql.Field{
+			Type: types.PenjualType,
+			Args: graphql.FieldConfigArgument{
+				"id_penjual": &graphql.ArgumentConfig{Type: graphql.Int},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var data models.Penjual
+				id := p.Args["id_penjual"].(int)
+				db.DB.First(&data, id)
+				return data, nil
+			},
+		},
 	},
 })
