@@ -34,5 +34,8 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"updateKeranjang": UpdateKeranjang,
 		"deleteKeranjang": DeleteKeranjang,
 
+		// === CHAT ===
+		"markChatAsRead": MarkChatAsRead,
+
 	},
 })
