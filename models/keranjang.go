@@ -7,8 +7,8 @@ type Keranjang struct {
 	Jumlah      int    `gorm:"column:jumlah" json:"jumlah"`
 	SizeK       string `gorm:"column:sizeK" json:"sizeK"`
 
-	Product Product `gorm:"foreignKey:IDProduct" json:"product"`
-	User    User    `gorm:"foreignKey:IDUser" json:"user"`
+	Product Product `gorm:"foreignKey:IDProduct;references:IDProduct;constraint:OnUpdate:CASCADE,OnDelete:CASCADE,-:all" json:"product"`
+	User    User    `gorm:"foreignKey:IDUser;references:IDUser;constraint:OnUpdate:CASCADE,OnDelete:CASCADE,-:all" json:"user"`
 }
 
 func (Keranjang) TableName() string {
