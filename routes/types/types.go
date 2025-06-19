@@ -72,3 +72,17 @@ var ProductType = graphql.NewObject(graphql.ObjectConfig{
 		"stok":    &graphql.Field{Type: graphql.Int},
 	},
 })
+
+var KeranjangType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Keranjang",
+	Fields: graphql.Fields{
+		"id_keranjang": &graphql.Field{Type: graphql.Int},
+		"id_user":      &graphql.Field{Type: graphql.Int},
+		"id_product":   &graphql.Field{Type: graphql.Int},
+		"jumlah":       &graphql.Field{Type: graphql.Int},
+		"sizeK":        &graphql.Field{Type: graphql.String},
+
+		"user":    &graphql.Field{Type: UserType},
+		"product": &graphql.Field{Type: ProductType},
+	},
+})
