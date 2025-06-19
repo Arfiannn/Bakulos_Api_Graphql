@@ -86,3 +86,17 @@ var KeranjangType = graphql.NewObject(graphql.ObjectConfig{
 		"product": &graphql.Field{Type: ProductType},
 	},
 })
+
+var HistoryType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "History",
+	Fields: graphql.Fields{
+		"id_history": &graphql.Field{Type: graphql.Int},
+		"id_user":    &graphql.Field{Type: graphql.Int},
+		"id_product": &graphql.Field{Type: graphql.Int},
+		"jumlah":     &graphql.Field{Type: graphql.Int},
+		"sizeH":      &graphql.Field{Type: graphql.String},
+
+		"product": &graphql.Field{Type: ProductType},
+		"user":    &graphql.Field{Type: UserType},
+	},
+})
