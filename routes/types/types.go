@@ -52,3 +52,23 @@ var AlamatType = graphql.NewObject(graphql.ObjectConfig{
 		"user": &graphql.Field{Type: UserType},
 	},
 })
+
+var ProductType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Product",
+	Fields: graphql.Fields{
+		"id_product":  &graphql.Field{Type: graphql.Int},
+		"id_penjual":  &graphql.Field{Type: graphql.Int},
+		"id_favorite": &graphql.Field{Type: graphql.Int},
+		"price":       &graphql.Field{Type: graphql.Int},
+		"name":        &graphql.Field{Type: graphql.String},
+		"kategori":    &graphql.Field{Type: graphql.String},
+		"size":        &graphql.Field{Type: graphql.String},
+		"deskripsi":   &graphql.Field{Type: graphql.String},
+		"brand":       &graphql.Field{Type: graphql.String},
+		"image":       &graphql.Field{Type: graphql.String},
+		"warna":       &graphql.Field{Type: graphql.String},
+
+		"penjual": &graphql.Field{Type: PenjualType},
+		"stok":    &graphql.Field{Type: graphql.Int},
+	},
+})
