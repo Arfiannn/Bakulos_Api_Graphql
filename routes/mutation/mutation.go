@@ -22,6 +22,13 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"updateAlamat": UpdateAlamat,
 		"deleteAlamat": DeleteAlamat,
 		"alamatUtama":  AlamatUtama,
+
+		// === PRODUCT ===
+		"createProduct": CreateProduct,
+		"updateProduct": UpdateProduct,
+		"deleteProduct": DeleteProduct,
+		"updateProductStok":   UpdateProductStok,
+
 		
 	},
 })
