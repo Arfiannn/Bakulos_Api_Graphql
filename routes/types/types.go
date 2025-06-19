@@ -27,3 +27,14 @@ var PenjualType = graphql.NewObject(graphql.ObjectConfig{
 		"profil":     &graphql.Field{Type: graphql.String},
 	},
 })
+
+var LoginResponseType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "LoginResponse",
+	Fields: graphql.Fields{
+		"id_user":    &graphql.Field{Type: graphql.Int},
+		"id_penjual": &graphql.Field{Type: graphql.Int},
+		"message":    &graphql.Field{Type: graphql.String},
+		"role":       &graphql.Field{Type: graphql.String},
+		"token":      &graphql.Field{Type: graphql.String},
+	},
+})
