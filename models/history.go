@@ -10,3 +10,7 @@ type History struct {
 	Product Product `gorm:"foreignKey:IDProduct;references:IDProduct" json:"product"`
 	User    User    `gorm:"foreignKey:IDUser;references:IDUser" json:"user"`
 }
+
+func (History) TableName() string {
+	return "history"
+}

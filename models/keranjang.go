@@ -10,3 +10,7 @@ type Keranjang struct {
 	Product Product `gorm:"foreignKey:IDProduct" json:"product"`
 	User    User    `gorm:"foreignKey:IDUser" json:"user"`
 }
+
+func (Keranjang) TableName() string {
+	return "keranjang"
+}
