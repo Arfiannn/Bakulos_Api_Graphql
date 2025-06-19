@@ -21,7 +21,6 @@ var Login = &graphql.Field{
 		email := getString(p, "email")
 		password := getString(p, "password")
 
-		// Cek ke tabel users dulu
 		var user models.User
 		if err := db.DB.Where("email = ?", email).First(&user).Error; err == nil {
 			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err == nil {
@@ -38,7 +37,6 @@ var Login = &graphql.Field{
 			}
 		}
 
-		// Cek ke tabel penjual
 		var penjual models.Penjual
 		if err := db.DB.Where("email = ?", email).First(&penjual).Error; err == nil {
 			if err := bcrypt.CompareHashAndPassword([]byte(penjual.Password), []byte(password)); err == nil {

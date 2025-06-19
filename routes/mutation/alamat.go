@@ -20,19 +20,16 @@ var CreateAlamat = &graphql.Field{
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		idUser := getInt(p, "id_user")
 
-		// Cek user valid
 		var user models.User
 		if err := db.DB.First(&user, idUser).Error; err != nil {
 			return nil, fmt.Errorf("user dengan id %d tidak ditemukan", idUser)
 		}
 
-		// Cek apakah user ini sudah punya alamat
 		var count int64
 		if err := db.DB.Model(&models.Alamat{}).Where("id_user = ?", idUser).Count(&count).Error; err != nil {
 			return nil, fmt.Errorf("gagal menghitung jumlah alamat")
 		}
 
-		// Jika belum ada alamat, set default true
 		isDefault := false
 		if count == 0 {
 			isDefault = true
@@ -43,7 +40,7 @@ var CreateAlamat = &graphql.Field{
 			Alamat:      getString(p, "alamat"),
 			NamaA:       getString(p, "namaA"),
 			TeleponA:    getString(p, "teleponA"),
-			AlamatUtama: isDefault, // ✅ auto set default
+			AlamatUtama: isDefault,
 		}
 
 		if err := db.DB.Create(&alamat).Error; err != nil {
@@ -120,12 +117,10 @@ var AlamatUtama = &graphql.Field{
 		idAlamat := p.Args["id_alamat"].(int)
 		idUser := p.Args["id_user"].(int)
 
-		// reset semua default
 		if err := db.DB.Model(&models.Alamat{}).Where("id_user = ?", idUser).Update("alamat_utama", false).Error; err != nil {
 			return nil, err
 		}
 
-		// set default baru
 		if err := db.DB.Model(&models.Alamat{}).Where("id_alamat = ?", idAlamat).Update("alamat_utama", true).Error; err != nil {
 			return nil, err
 		}

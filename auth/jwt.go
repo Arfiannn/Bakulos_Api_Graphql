@@ -23,7 +23,7 @@ func GenerateJWT(userID uint, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"id_user": userID,
 		"role":    role,
-		"exp":     time.Now().Add(10 * time.Hour).Unix(),
+		"exp":     time.Now().Add(10 * time.Second).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(SecretKey)
@@ -69,7 +69,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Allow GraphiQL GET (UI in browser)
 		if r.Method == http.MethodGet && r.URL.Path == "/graphql" {
 			next.ServeHTTP(w, r)
 			return

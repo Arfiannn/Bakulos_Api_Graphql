@@ -25,29 +25,24 @@ var CreateCheckout = &graphql.Field{
 		idUser := getInt(p, "id_user")
 		idProduct := getInt(p, "id_product")
 
-		// cek user
 		var user models.User
 		if err := db.DB.First(&user, idUser).Error; err != nil {
 			return nil, fmt.Errorf("user dengan id %d tidak ditemukan", idUser)
 		}
 
-		// cek produk
 		var product models.Product
 		if err := db.DB.First(&product, idProduct).Error; err != nil {
 			return nil, fmt.Errorf("produk dengan id %d tidak ditemukan", idProduct)
 		}
 
-		// Handling ID Alamat
 		var idAlamat uint
 		if val, ok := p.Args["id_alamat"]; ok {
-			// jika id_alamat dikirim dari frontend
 			idAlamat = uint(val.(int))
 			var alamat models.Alamat
 			if err := db.DB.First(&alamat, idAlamat).Error; err != nil {
 				return nil, fmt.Errorf("alamat dengan id %d tidak ditemukan", idAlamat)
 			}
 		} else {
-			// jika id_alamat tidak dikirim, ambil alamat default user
 			var alamat models.Alamat
 			if err := db.DB.Where("id_user = ? AND alamat_utama = ?", idUser, true).First(&alamat).Error; err != nil {
 				return nil, fmt.Errorf("alamat default user id %d tidak ditemukan", idUser)
@@ -55,7 +50,6 @@ var CreateCheckout = &graphql.Field{
 			idAlamat = alamat.IDAlamat
 		}
 
-		// handle keranjang (optional)
 		var idKeranjang *uint = nil
 		if val, ok := p.Args["id_keranjang"]; ok {
 			tempID := uint(val.(int))
@@ -66,7 +60,6 @@ var CreateCheckout = &graphql.Field{
 			idKeranjang = &tempID
 		}
 
-		// simpan checkout
 		checkout := models.Checkout{
 			IDUser:           uint(idUser),
 			IDProduct:        uint(idProduct),
@@ -102,16 +95,13 @@ var ConfirmCheckout = &graphql.Field{
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		id := getInt(p, "id_checkout")
 
-		// Cari data checkout
 		var checkout models.Checkout
 		if err := db.DB.First(&checkout, id).Error; err != nil {
 			return nil, fmt.Errorf("checkout dengan id %d tidak ditemukan", id)
 		}
 
-		// Default ambil dari checkout.SizeP
 		size := checkout.SizeP
 
-		// Jika checkout.SizeP kosong, cari size dari keranjang
 		if size == "" || size == "-" {
 			var keranjang models.Keranjang
 			if err := db.DB.First(&keranjang, checkout.IDKeranjang).Error; err == nil {
@@ -119,7 +109,6 @@ var ConfirmCheckout = &graphql.Field{
 			}
 		}
 
-		// Masukkan ke history dengan size final
 		history := models.History{
 			IDProduct: checkout.IDProduct,
 			IDUser:    checkout.IDUser,
@@ -130,11 +119,9 @@ var ConfirmCheckout = &graphql.Field{
 			return nil, fmt.Errorf("gagal menyimpan ke history: %v", err)
 		}
 
-		// Hapus checkout
 		if err := db.DB.Delete(&checkout).Error; err != nil {
 			return nil, fmt.Errorf("gagal menghapus checkout setelah konfirmasi: %v", err)
 		}
-		// ✅ Hapus keranjang setelah confirm checkout (jika ada)
 		if checkout.IDKeranjang != nil {
 			db.DB.Delete(&models.Keranjang{}, *checkout.IDKeranjang)
 		}
