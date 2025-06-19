@@ -126,5 +126,17 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return data, nil
 			},
 		},
+
+			"favorites": &graphql.Field{
+			Type: graphql.NewList(types.FavoriteType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var data []models.Favorite
+				err := db.DB.Preload("Product").Preload("User").Find(&data).Error
+				if err != nil {
+					return nil, err
+				}
+				return data, nil
+			},
+		},
 	},
 })
