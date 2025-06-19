@@ -24,10 +24,21 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"alamatUtama":  AlamatUtama,
 
 		// === PRODUCT ===
-		"createProduct": CreateProduct,
-		"updateProduct": UpdateProduct,
-		"deleteProduct": DeleteProduct,
+		"createProduct":     CreateProduct,
+		"updateProduct":     UpdateProduct,
+		"deleteProduct":     DeleteProduct,
 		"updateProductStok": UpdateProductStok,
+
+		// === FAVORITE ===
+		"createFavorite": CreateFavorite,
+		"updateFavorite": UpdateFavorite,
+		"deleteFavorite": DeleteFavorite,
+
+		// === CHECKOUT ===
+		"createCheckout":  CreateCheckout,
+		"updateCheckout":  UpdateCheckout,
+		"deleteCheckout":  DeleteCheckout,
+		"confirmCheckout": ConfirmCheckout,
 
 		// === KERANJANG ===
 		"createKeranjang": CreateKeranjang,
@@ -37,5 +48,6 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		// === CHAT ===
 		"markChatAsRead": MarkChatAsRead,
 
+		"forgetPassword": ForgetPassword,
 	},
 })
