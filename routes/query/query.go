@@ -4,7 +4,9 @@ import (
 	"bakulos_grapghql/db"
 	"bakulos_grapghql/models"
 	"bakulos_grapghql/routes/types"
+	"fmt"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/graphql-go/graphql"
 )
 
@@ -14,8 +16,20 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 		"users": &graphql.Field{
 			Type: graphql.NewList(types.UserType),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				var data []models.User
-				return data, db.DB.Find(&data).Error
+				userClaims := p.Context.Value("user")
+				if userClaims == nil {
+					return nil, fmt.Errorf("Unauthorized")
+				}
+
+				claims := userClaims.(jwt.MapClaims)
+				idUser := uint(claims["id_user"].(float64))
+
+				var user models.User
+				if err := db.DB.First(&user, idUser).Error; err != nil {
+					return nil, err
+				}
+
+				return []models.User{user}, nil
 			},
 		},
 		"usersbyid": &graphql.Field{
@@ -48,6 +62,14 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				id := p.Args["id_penjual"].(int)
 				db.DB.First(&data, id)
 				return data, nil
+			},
+		},
+
+		"idpenjuals": &graphql.Field{
+			Type: graphql.NewList(types.PenjualType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var data []models.Penjual
+				return data, db.DB.Find(&data).Error
 			},
 		},
 
@@ -127,7 +149,7 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 
-			"favorites": &graphql.Field{
+		"favorites": &graphql.Field{
 			Type: graphql.NewList(types.FavoriteType),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				var data []models.Favorite
@@ -139,64 +161,64 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 
-			"chats": &graphql.Field{
-		Type: graphql.NewList(types.ChatType),
-		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			var chats []models.Chat
-			err := db.DB.
-				Preload("User").
-				Preload("Penjual").
-				Order("created_at ASC"). // ✅ tambahkan sorting by waktu
-				Find(&chats).Error
-			return chats, err
+		"chats": &graphql.Field{
+			Type: graphql.NewList(types.ChatType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var chats []models.Chat
+				err := db.DB.
+					Preload("User").
+					Preload("Penjual").
+					Order("created_at ASC").
+					Find(&chats).Error
+				return chats, err
+			},
 		},
-	},
-	"chatsByUserPenjual": &graphql.Field{
-		Type: graphql.NewList(types.ChatType),
-		Args: graphql.FieldConfigArgument{
-			"id_user":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
-			"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		"chatsByUserPenjual": &graphql.Field{
+			Type: graphql.NewList(types.ChatType),
+			Args: graphql.FieldConfigArgument{
+				"id_user":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+				"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var chats []models.Chat
+				idUser := p.Args["id_user"].(int)
+				idPenjual := p.Args["id_penjual"].(int)
+				err := db.DB.
+					Where("id_user = ? AND id_penjual = ?", idUser, idPenjual).
+					Order("created_at ASC"). // ✅ tambahkan sorting by waktu juga di sini
+					Preload("User").
+					Preload("Penjual").
+					Find(&chats).Error
+				return chats, err
+			},
 		},
-		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			var chats []models.Chat
-			idUser := p.Args["id_user"].(int)
-			idPenjual := p.Args["id_penjual"].(int)
-			err := db.DB.
-				Where("id_user = ? AND id_penjual = ?", idUser, idPenjual).
-				Order("created_at ASC"). // ✅ tambahkan sorting by waktu juga di sini
-				Preload("User").
-				Preload("Penjual").
-				Find(&chats).Error
-			return chats, err
+		"countUnreadChatByPenjual": &graphql.Field{
+			Type: graphql.Int,
+			Args: graphql.FieldConfigArgument{
+				"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				idPenjual := p.Args["id_penjual"].(int)
+				var count int64
+				err := db.DB.Model(&models.Chat{}).
+					Where("id_penjual = ? AND sender = ? AND is_read = ?", idPenjual, "user", false).
+					Count(&count).Error
+				return int(count), err
+			},
 		},
-	},
-	"countUnreadChatByPenjual": &graphql.Field{
-		Type: graphql.Int,
-		Args: graphql.FieldConfigArgument{
-			"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		"countUnreadChatByUser": &graphql.Field{
+			Type: graphql.Int,
+			Args: graphql.FieldConfigArgument{
+				"id_user": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				idUser := p.Args["id_user"].(int)
+				var count int64
+				err := db.DB.Model(&models.Chat{}).
+					Where("id_user = ? AND sender = ? AND is_read = ?", idUser, "penjual", false).
+					Count(&count).Error
+				return int(count), err
+			},
 		},
-		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			idPenjual := p.Args["id_penjual"].(int)
-			var count int64
-			err := db.DB.Model(&models.Chat{}).
-				Where("id_penjual = ? AND sender = ? AND is_read = ?", idPenjual, "user", false).
-				Count(&count).Error
-			return int(count), err
-		},
-	},
-	"countUnreadChatByUser": &graphql.Field{
-		Type: graphql.Int,
-		Args: graphql.FieldConfigArgument{
-			"id_user": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
-		},
-		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			idUser := p.Args["id_user"].(int)
-			var count int64
-			err := db.DB.Model(&models.Chat{}).
-				Where("id_user = ? AND sender = ? AND is_read = ?", idUser, "penjual", false).
-				Count(&count).Error
-			return int(count), err
-		},
-	},
 	},
 })
