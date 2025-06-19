@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	
+	"bakulos_grapghql/auth"
 	"bakulos_grapghql/db"
 	"bakulos_grapghql/routes/schema"
+	"log"
+	"net/http"
 
 	"github.com/graphql-go/handler"
 )
@@ -16,6 +16,8 @@ func main() {
 	// Buat GraphQL schema (Query + Mutation)
 	schema := schema.NewSchema()
 
+	http.HandleFunc("/login", auth.LoginHandler)
+
 	// Setup handler dengan GraphiQL UI
 	h := handler.New(&handler.Config{
 		Schema:   &schema,
@@ -23,7 +25,7 @@ func main() {
 		GraphiQL: true,
 	})
 
-	http.Handle("/graphql", h)
+	http.Handle("/graphql", auth.AuthMiddleware(h))
 
 	log.Println("🚀 Server GraphQL berjalan di: http://localhost:8080/graphql")
 

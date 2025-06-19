@@ -1,6 +1,7 @@
 package mutation
 
 import (
+	"bakulos_grapghql/auth"
 	"bakulos_grapghql/db"
 	"bakulos_grapghql/models"
 	"bakulos_grapghql/routes/types"
