@@ -93,5 +93,17 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 		return data, nil
 			},
 		},
+
+		"keranjangs": &graphql.Field{
+			Type: graphql.NewList(types.KeranjangType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			var data []models.Keranjang
+			err := db.DB.Preload("Product").Preload("User").Find(&data).Error
+			if err != nil {
+			return nil, err
+		}
+		return data, nil
+			},
+		},
 	},
 })
