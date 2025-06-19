@@ -138,5 +138,65 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return data, nil
 			},
 		},
+
+			"chats": &graphql.Field{
+		Type: graphql.NewList(types.ChatType),
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			var chats []models.Chat
+			err := db.DB.
+				Preload("User").
+				Preload("Penjual").
+				Order("created_at ASC"). // ✅ tambahkan sorting by waktu
+				Find(&chats).Error
+			return chats, err
+		},
+	},
+	"chatsByUserPenjual": &graphql.Field{
+		Type: graphql.NewList(types.ChatType),
+		Args: graphql.FieldConfigArgument{
+			"id_user":    &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+			"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			var chats []models.Chat
+			idUser := p.Args["id_user"].(int)
+			idPenjual := p.Args["id_penjual"].(int)
+			err := db.DB.
+				Where("id_user = ? AND id_penjual = ?", idUser, idPenjual).
+				Order("created_at ASC"). // ✅ tambahkan sorting by waktu juga di sini
+				Preload("User").
+				Preload("Penjual").
+				Find(&chats).Error
+			return chats, err
+		},
+	},
+	"countUnreadChatByPenjual": &graphql.Field{
+		Type: graphql.Int,
+		Args: graphql.FieldConfigArgument{
+			"id_penjual": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			idPenjual := p.Args["id_penjual"].(int)
+			var count int64
+			err := db.DB.Model(&models.Chat{}).
+				Where("id_penjual = ? AND sender = ? AND is_read = ?", idPenjual, "user", false).
+				Count(&count).Error
+			return int(count), err
+		},
+	},
+	"countUnreadChatByUser": &graphql.Field{
+		Type: graphql.Int,
+		Args: graphql.FieldConfigArgument{
+			"id_user": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			idUser := p.Args["id_user"].(int)
+			var count int64
+			err := db.DB.Model(&models.Chat{}).
+				Where("id_user = ? AND sender = ? AND is_read = ?", idUser, "penjual", false).
+				Count(&count).Error
+			return int(count), err
+		},
+	},
 	},
 })
