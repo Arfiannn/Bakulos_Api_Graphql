@@ -48,6 +48,8 @@ var RootMutation = graphql.NewObject(graphql.ObjectConfig{
 		// === CHAT ===
 		"markChatAsRead": MarkChatAsRead,
 
+		// === LOGIN ===
+		"login":          Login,
 		"forgetPassword": ForgetPassword,
 	},
 })

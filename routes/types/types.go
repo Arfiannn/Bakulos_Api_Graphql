@@ -1,6 +1,8 @@
 package types
 
 import (
+	"bakulos_grapghql/models"
+	
 	"github.com/graphql-go/graphql"
 )
 
@@ -140,3 +142,29 @@ var ForgetPasswordResponseType = graphql.NewObject(graphql.ObjectConfig{
 		"role":    &graphql.Field{Type: graphql.String},
 	},
 })
+
+var ChatType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Chat",
+	Fields: graphql.Fields{
+		"id_chat":    &graphql.Field{Type: graphql.Int},
+		"id_user":    &graphql.Field{Type: graphql.Int},
+		"id_penjual": &graphql.Field{Type: graphql.Int},
+		"chat":       &graphql.Field{Type: graphql.String},
+		"sender":     &graphql.Field{Type: graphql.String},
+		"is_read":    &graphql.Field{Type: graphql.Boolean},
+
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if chat, ok := p.Source.(models.Chat); ok {
+					return chat.CreatedAt.Format("2006-01-02 15:04:05"), nil
+				}
+				return nil, nil
+			},
+		},
+
+		"user":    &graphql.Field{Type: UserType},
+		"penjual": &graphql.Field{Type: PenjualType},
+	},
+})
+
