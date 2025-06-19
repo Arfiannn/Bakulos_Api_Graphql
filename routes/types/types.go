@@ -120,3 +120,15 @@ var CheckoutType = graphql.NewObject(graphql.ObjectConfig{
 		"alamat":    &graphql.Field{Type: AlamatType},
 	},
 })
+
+var FavoriteType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Favorite",
+	Fields: graphql.Fields{
+		"id_favorite": &graphql.Field{Type: graphql.Int},
+		"id_product":  &graphql.Field{Type: graphql.Int},
+		"id_user":     &graphql.Field{Type: graphql.Int},
+
+		"user":    &graphql.Field{Type: UserType},
+		"product": &graphql.Field{Type: ProductType},
+	},
+})
