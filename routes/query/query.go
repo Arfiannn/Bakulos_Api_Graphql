@@ -50,5 +50,16 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return data, nil
 			},
 		},
+
+		"alamats": &graphql.Field{
+			Type: graphql.NewList(types.AlamatType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				var data []models.Alamat
+				if err := db.DB.Preload("User").Find(&data).Error; err != nil {
+					return nil, err
+				}
+				return data, nil
+			},
+		},
 	},
 })

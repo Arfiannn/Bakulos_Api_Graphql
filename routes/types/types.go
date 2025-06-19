@@ -38,3 +38,17 @@ var LoginResponseType = graphql.NewObject(graphql.ObjectConfig{
 		"token":      &graphql.Field{Type: graphql.String},
 	},
 })
+
+var AlamatType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Alamat",
+	Fields: graphql.Fields{
+		"id_alamat":    &graphql.Field{Type: graphql.Int},
+		"id_user":      &graphql.Field{Type: graphql.Int},
+		"alamat":       &graphql.Field{Type: graphql.String},
+		"teleponA":     &graphql.Field{Type: graphql.String},
+		"namaA":        &graphql.Field{Type: graphql.String},
+		"alamat_utama": &graphql.Field{Type: graphql.Boolean},
+
+		"user": &graphql.Field{Type: UserType},
+	},
+})
