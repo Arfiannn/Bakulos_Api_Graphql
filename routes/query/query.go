@@ -61,5 +61,37 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return data, nil
 			},
 		},
+
+		"products": &graphql.Field{
+			Type: graphql.NewList(types.ProductType),
+			Args: graphql.FieldConfigArgument{
+			"id_user": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			var data []models.Product
+		
+			err := db.DB.Preload("Penjual").Find(&data).Error
+			if err != nil {
+			return nil, err
+			}
+			var idUser uint = 0
+			if val, ok := p.Args["id_user"]; ok && val != nil {
+			idUser = uint(val.(int))
+			}
+		
+			for i := range data {
+			var fav models.Favorite
+			err := db.DB.Where("id_product = ? AND id_user = ?", data[i].IDProduct, idUser).First(&fav).Error
+			if err == nil {
+				data[i].IDFavorite = &fav.IDFavorite
+			} else {
+				data[i].IDFavorite = nil
+			}
+		}
+		return data, nil
+			},
+		},
 	},
 })
