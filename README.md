@@ -30,7 +30,7 @@ Menyediakan platform e-commerce dengan UI/UX yang ramah pengguna, sistem autenti
 - ✍️ **Registrasi khusus penjual** (JWT Authentication)
 - 📦 **Manajemen produk** (tambah/edit/hapus)
 - 💬 **Chat dengan pembeli** tanpa delay
-- 📈 **Pantau aktivitas & respons pesanan**
+- 📈 **Edit profil** & ubah foto penjual**
 
 ---
 
